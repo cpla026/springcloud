@@ -1,0 +1,54 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: springcloud-user-feign-hystrix # 服务名称 横杠不可以是下划线
+
+  datasource:
+    url: jdbc:mysql://101.200.42.170:3306/springclouddb?useSSL=false&useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+mybatis:
+  type-aliases-package: com.coolron.user.domain
+  mapper-locations: classpath:mapping/user/*.xml
+
+eureka:
+  client:
+    # 指定服务注册中心的位置
+    serviceUrl:
+      defaultZone: http://peer1:8761/eureka/,http://peer2:8762/eureka/
+
+# 开启feign 的断路器
+feign:
+  hystrix:
+    enabled: true
+
+#feign:
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 10000
+#        readTimeout: 10000
+
+# 在 Feign 模块中，单独设置这个超时时间不行，还要额外设置 Ribbon 的超时时间
+hystrix:
+  command:
+    # 指定到某一个，格式:类名#方法名()，如果方法有入参，也要把入参的类型拼上
+    "FeignArticleClient#getInfo(String)":
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    # 默认的
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+
+# 官网建议 Hystrix超时时间大于Ribbon的超时时间 以便包含任何可能进行的重试
+# 建议 Hystrix 超时时间略多于 Ribbon超时时间*重试次数
+ribbon:
+  ReadTimeout: 3000
+  ConnectTimeout: 3000

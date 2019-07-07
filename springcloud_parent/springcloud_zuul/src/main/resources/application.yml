@@ -1,0 +1,125 @@
+server:
+  port: 8050
+
+spring:
+  application:
+    name: springcloud-zuul
+
+eureka:
+  client:
+    # 指定服务注册中心的位置
+    serviceUrl:
+      defaultZone: http://peer1:8761/eureka/,http://peer2:8762/eureka/
+
+
+
+############################## 网关的几种配置 ###########################
+########### 方式一：不配置 即默认注册Eureka 上的所有 ############
+### 可访问路径 ###
+# http://127.0.0.1:8050/springcloud-user/user/list
+# http://127.0.0.1:8050/springcloud-article/article/list
+
+
+########### 方式二：排除所有之后引入指定微服务 ##########
+### 可访问路径 ###
+# http://127.0.0.1:8050/user/user/list
+##### zuul 配置 ####
+#zuul:
+#  ignoredServices: '*'
+#  routes:
+#    springcloud-user: /user/**
+
+
+########### 方式三：排除指定微服务、配置指定微服务 ##########
+### 可访问路径 ###
+# http://127.0.0.1:8050/springcloud-user/user/list
+# http://127.0.0.1:8050/user/user/list
+##### zuul 配置 ####
+#zuul:
+#  # 排除 springcloud-article
+#  ignoredServices: 'springcloud-article'
+#  routes:
+#    springcloud-user: /user/**
+
+
+################ 方式四：细粒度配置指定微服务 建议使用 ################
+### 可访问路径 ###
+# http://127.0.0.1:8050/springcloud-article/article/list
+# http://127.0.0.1:8050/springcloud-user/user/list
+# http://127.0.0.1:8050/user/user/list
+##### zuul 配置 ####
+#zuul:
+#  routes:
+#    # 名称随便取 保证唯一即可
+#    abc:
+#      path: /user/**
+#      serviceId: springcloud-user
+
+
+################ 方式五：指定微服务URL 此方式负载均衡较繁琐 不建议使用 ################
+### 可访问路径 ###
+# http://127.0.0.1:8050/springcloud-article/article/list
+# http://127.0.0.1:8050/springcloud-user/user/list
+# http://127.0.0.1:8050/user-url/user/list
+##### zuul 配置 ####
+#zuul:
+#  routes:
+#    # 名称随便取 保证唯一
+#    abc:
+#      path: /user-url/**
+#      # 用户微服务地址
+#      url: http://127.0.0.1:8090
+
+#### url 方式负载均衡 配置 ####
+# http://127.0.0.1:8050/user-url/article/3
+# http://127.0.0.1:8050/springcloud-article/article/3
+#zuul:
+#  routes:
+#    abc:
+#      path: /user-url/**
+#      serviceId: springcloud-article
+#
+#ribbon:
+#  eureka:
+#    enabled: false
+#
+#springcloud-article:  # serviceId
+#  ribbon:
+#    listOfServers: http://127.0.0.1:8082,http://127.0.0.1:8083 # 服务多节点地址
+
+# 前缀
+# http://127.0.0.1:8050/api/springcloud-article/article/list
+#zuul:
+#  prefix: /api
+
+# http://127.0.0.1:8050/article/springcloud-article/1
+#zuul:
+#  prefix: /article
+#  strip-prefix: false
+
+### 忽略 包含 admin 的路径 #####
+#zuul:
+#  ignoredPatterns: /**/admin/**
+#  routes:
+#    users: /myusers/**
+
+### users 服务为 /myusers/** 其他为 /** ###
+#zuul:
+#  routes:
+#    users:
+#      path: /myusers/**
+#    legacy:
+#      path: /**
+
+
+############### 通过 zuul 上传大文件 在前加 /zuul 前缀 小文件不需要 ##################
+############ zuul 上传大文件会超时 #########
+#hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+#ribbon:
+#  ConnectTimeout: 3000
+#  ReadTimeout: 60000
+
+logging:
+  level:
+    com.netiflix: debug
+

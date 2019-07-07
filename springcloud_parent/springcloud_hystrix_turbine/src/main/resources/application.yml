@@ -1,0 +1,19 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: springcloud-hystrix-turbine
+
+# turbine 需要注册到 Eureka 中
+eureka:
+  client:
+    # 指定服务注册中心的位置
+    serviceUrl:
+#      defaultZone: http://127.0.0.1:8761/eureka/
+      defaultZone: http://peer1:8761/eureka/,http://peer2:8762/eureka/
+
+turbine:
+  aggregator:
+    clusterConfig: SPRINGCLOUD-USER-RIBBON-HYSTRIX
+  appConfig: springcloud-user-ribbon-hystrix

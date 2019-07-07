@@ -1,0 +1,35 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: springcloud-config
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/cpla026/springcloud.git
+          #search-paths: springcloud_config
+          search-paths: '*'
+
+# mq 配置
+  rabbitmq:
+    host: 192.168.25.133
+    port: 5672
+    username: guest
+    password: guest
+
+# 2.0之后，默认的监控端点地址加了上下文路径 actuator。可通过 management.endpoints.web.base-path属性进行修改，默认是： actuator
+# 2.0之后，默认只开启了端点 info、 health。其他的需要通过 management.endpoints.web.exposure.include进行额外配置。
+# 配置刷新
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+eureka:
+  client:
+    # 指定服务注册中心的位置
+    serviceUrl:
+#      defaultZone: http://127.0.0.1:8761/eureka/
+      defaultZone: http://peer1:8761/eureka/,http://peer2:8762/eureka/
